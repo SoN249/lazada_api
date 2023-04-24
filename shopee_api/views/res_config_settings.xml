@@ -1,0 +1,50 @@
+    <odoo>
+    <record id="res_config_settings_shopee_view" model="ir.ui.view">
+        <field name="name">res.config.settings.view.shopee.inherit</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="20"/>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='connectors_setting_container']" position="after">
+                <h2>Shopee Connect </h2>
+                <div class="col-xs-12 row o_settings_container" id="website_info_settings">
+                    <div class="col-xs-12 col-md-6 o_setting_box">
+                        <div class="o_setting_right_pane border-start-0">
+                            <div class="content-group">
+                                <div class="row mt8">
+                                    <label class="col-lg-3" string="Client ID" for="app_key_shopee"/>
+                                    <field name="app_key_shopee" title="Provide the Client ID here"/>
+
+                                </div>
+                                <div class="row mt8">
+                                    <label class="col-lg-3" string="Client Secret" for="app_secret_shopee"/>
+                                    <field name="app_secret_shopee" title="Provide the Client Secret here"/>
+                                </div>
+
+                                <div class="row mt8">
+                                    <label class="col-lg-3" string="Shop Id" for="shop_id"/>
+                                    <field name="shop_id" title="Provide the shop id here"/>
+                                </div>
+
+                                <div class="row mt8">
+                                    <label class="col-lg-3" string="Auth Code" for="auth_code_shopee"/>
+                                    <field name="auth_code_shopee"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label class="col-lg-3" string="Url" for="url_shopee"/>
+                                    <field name="url_shopee"/>
+                                </div>
+                                <button class="btn btn-primary" name="btn_get_auth_shopee" type="object"
+                                        string="Authorization"/>
+                                <button class="btn btn-primary mx-2" name="get_token_account_level" type="object"
+                                        string="Connect Shopee"/>
+<!--                                <button class="btn btn-primary mx-2" name="sync_data" type="object" string="Sync Data"/>-->
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
