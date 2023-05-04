@@ -20,16 +20,21 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','sale',"product",'stock'],
+    'depends': ['base','sale',"product",'stock','sale_stock'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
         'views/res_config_setting_lazada.xml',
         "views/s_product_lazada.xml",
-    ],
-    # only loaded in demonstration mode
-    'demo': [
-        'demo/demo.xml',
+        "views/s_order_lazada.xml",
+        "views/s_stock_picking.xml",
+        "views/s_warehouse.xml",
+        "wizard/type_shipping_document.xml",
+        "data/scheduled_sync_order.xml",
+        "data/scheduled_sync_product.xml",
+        "data/scheduled_sync_stock.xml",
+        "data/scheduled_sync_package.xml",
+        "data/scheduled_update_order.xml"
     ],
 }

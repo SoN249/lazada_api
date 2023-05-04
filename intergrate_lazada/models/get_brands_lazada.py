@@ -1,7 +1,5 @@
 from odoo import fields, models
 
-
-
 class BrandsLazada(models.Model):
     _name= "brands.lazada"
 

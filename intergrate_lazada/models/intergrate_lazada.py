@@ -17,7 +17,8 @@ class IntegrateLazada(models.Model):
         ir_config = self.env['ir.config_parameter'].sudo()
         parameters = {"app_key": ir_config.get_param('intergrate_lazada.app_key', ''), "sign_method": "sha256",
                   "access_token": self.sudo().search([]).access_token, "timestamp": timestamp}
-        parameters.update(params)
+        if params is not None:
+            parameters.update(params)
         sort_dict = sorted(parameters)
         secret = ir_config.get_param('intergrate_lazada.app_secret','')
         parameters_str = "%s%s" % (api,str().join('%s%s' % (key, parameters[key]) for key in sort_dict))
@@ -27,7 +28,6 @@ class IntegrateLazada(models.Model):
     def _post_request_data(self,api,parameters=None,payload=None, files=None,  headers=None):
         if headers is None:
             headers = {
-                'Content-Type': 'application/json',
                 'User-Agent': 'Odoo'
             }
         ir_config = self.env['ir.config_parameter'].sudo()
@@ -37,11 +37,12 @@ class IntegrateLazada(models.Model):
         sign = self.create_signature(api,parameters, timestamp)
         params = {"app_key": ir_config.get_param('intergrate_lazada.app_key', ''), "sign_method": "sha256",
                   "access_token": self.sudo().search([]).access_token, "timestamp": timestamp, "sign":sign}
-        if parameters == dict():
-            key = list(parameters.keys())[0]
-            params.update({key: str(parameters[key])})
-        else:
-            params.update(parameters)
+        if parameters is not None:
+            if len(parameters) == 1:
+                key = list(parameters.keys())[0]
+                params.update({key: str(parameters[key])})
+            else:
+                params.update(parameters)
 
         url = ir_config.get_param('intergrate_lazada.url','') + api
         res = requests.post(

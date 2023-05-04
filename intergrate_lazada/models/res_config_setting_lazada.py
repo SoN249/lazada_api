@@ -59,17 +59,14 @@ class ResConfigSettingLazada(models.TransientModel):
         res_data = res.json()
         token = self.env['integrate.lazada'].sudo().search([])
             # Token test
-        token_test = "50000201909ffjcsqjdca1fa10d14qdMw1cjkxh0mQXjczAssDKp3rNv1AholnGj"
+        token_test = "50000200730cYjNesDoAnwMRegyj0GiuiRTCWect7N1d27e130sukhFSmAGq2gI0"
         if not token:
             self.env['integrate.lazada'].sudo().create({"access_token": token_test
                 })
         else:
             token.sudo().write({"access_token": token_test})
-
-
     def sync_data(self):
-        # self.env['product.category'].category_lazada()
-        # self.env['brands.lazada'].get_brands_lazada()
-        # self.env['stock.warehouse'].sync_warehouse()
-        # self.env['sale.order'].sync_order_lazada()
-        self.env['stock.picking'].sync_package()
+        self.env['product.category'].get_category_lazada()
+        self.env['stock.warehouse'].sync_warehouse()
+        
+

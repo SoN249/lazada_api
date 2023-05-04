@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
 access_brands_lazada,access_brands_lazada,model_brands_lazada,base.group_user,1,1,1,1
+access_shipping_document,access_shipping_document,model_shipping_document,base.group_user,1,1,1,1

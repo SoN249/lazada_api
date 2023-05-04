@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+     <record id="ir_cron_data_product_lazada" model="ir.cron">
+            <field name="name">Đồng bộ sản phẩm: Đồng bộ sản phẩm Lazada</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="type">ir.actions.server</field>
+            <field name="state">code</field>
+            <field name="code">model.cron_job_sync_product_lazada()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="numbercall">-1</field>
+             <field name='interval_type'>hours</field>
+             <field name="nextcall" eval="datetime.now() +   timedelta(hours=1)"/>
+        </record>
+      </data>
+</odoo>

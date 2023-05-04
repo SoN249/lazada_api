@@ -1,138 +1,192 @@
-from odoo import fields,models,api
+from odoo import fields, models, api
 from odoo.exceptions import ValidationError
+from PIL import Image
+import io, base64
 
 class SProductLazada(models.Model):
     _inherit = ['product.template']
 
     brand_id = fields.Many2one('brands.lazada', string="Brand")
-    package_height = fields.Float('Chiều cao (cm)')
-    package_length = fields.Float('Chiều dai (cm)')
-    package_width = fields.Float('Chiều rộng (cm)')
-    package_weight = fields.Float('Trọng lượng')
+    package_height = fields.Float('Chiều cao (cm)', required=True)
+    package_length = fields.Float('Chiều dai (cm)', required=True)
+    package_width = fields.Float('Chiều rộng (cm)', required=True)
+    package_weight = fields.Float('Trọng lượng', required = True)
     check_sync_product = fields.Boolean('Check sync', default=False, readonly=True)
-    warranty_type = fields.Selection([('No Warranty',"No Warranty")])
+    is_push_lazada = fields.Boolean('Push lazada', default=False, )
+    warranty_type = fields.Selection([('No Warranty', "Không có bảo hành")], default='No Warranty')
     is_shipped_by_seller = fields.Selection([('No', 'Không'),
                                              ('Yes', 'Có')
                                              ], default='No')
+    check_update = fields.Boolean('Check update', default=False, readonly=True)
 
-    @api.onchange('attribute_line_ids')
-    def _check_attribute_id(self):
-        if len(self.attribute_line_ids.attribute_id) > 2:
-            raise ValidationError("Not more than 2 attribute")
-
-    def variation_custions(self):
-        if self.attribute_line_ids:
-            variation_name = self.attribute_line_ids.attribute_id.mapped('name')
-            variation =  {"variation1":{"name": variation_name[0],
-                               "hasImage": "True",
-                               "customize": "True",
-                               "options": {
-                                   "option": []
-                                 }}
-                          }
-            for name in self.attribute_line_ids[0].value_ids.mapped("name"):
-                variation['variation1']['options']['option'].append(name)
-
-            if len(self.attribute_line_ids) == 2:
-                variation2 = {"name": variation_name[1],
-                              "hasImage": "False",
-                              "customize": "True",
-                              "options": {
-                                  "option": []
-                              }}
-                for name in self.attribute_line_ids[1].value_ids.mapped("name"):
-                    variation2['options']['option'].append(name)
-
-                variation.update({"variation2": variation2})
-                return variation
-        else:
-            return False
-
-        #
-    def sku_product(self):
-        Skus = {"Sku": []}
-        variation_name = self.attribute_line_ids.attribute_id.mapped('name')
-        if len(self.attribute_line_ids) == 0 or len(self.product_variant_ids) == 1:
-            Skus["Sku"].append({
-                "SellerSku": self.default_code,
-                "saleProp": {},
-                "quantity": self.qty_available,
-                "price": str(self.lst_price),
-                "package_height": str(self.package_height),
-                "package_length": str(self.package_length),
-                "package_width": str(self.package_width),
-                "package_weight": str(self.package_weight),
-                "Images": {
-                    "Image": [
-                        "https://vn-live-02.slatic.net/p/10e05aa7f00447dcfb3814d439100b08.jpg"
-                    ]
+    @api.onchange('is_push_lazada')
+    def _check_is_push_lazada(self):
+        if self.is_push_lazada:
+            if len(self.attribute_line_ids.attribute_id) > 2:
+                self.is_push_lazada = False
+                return {
+                    'warning': {
+                        'title': 'Cảnh báo',
+                        'message': 'Chỉ có 2 biến thể mới có thể được đẩy lên lazada'
+                    }
                 }
-            })
+            if not self.image_1920:
+                self.is_push_lazada = False
+                return {
+                    'warning': {
+                        'title': 'Cảnh báo',
+                        'message': 'Chưa có ảnh'
+                    }
+                }
+            if not self.categ_id.category_lazada_id:
+                self.is_push_lazada = False
+                return {
+                    'warning': {
+                        'title': 'Cảnh báo',
+                        'message': 'Danh mục này không phải của lazada'
+                    }
+                }
 
-            if len(self.attribute_line_ids) == 2:
-                Skus["Sku"]["saleProp"].update({variation_name[0]: self.attribute_line_ids[0].value_ids.name,variation_name[1]: self.attribute_line_ids[2].value_ids.name})
-            elif len(self.attribute_line_ids) == 1:
-                Skus["Sku"]["saleProp"].update({variation_name[0]: self.attribute_line_ids[0].value_ids.name})
-        else:
-                for r in range(len(self.product_variant_ids)):
-                        for value in self.product_variant_ids[r]:
-                            Skus['Sku'].append({
-                                "SellerSku": value.default_code,
-                                "saleProp": {
-                                    variation_name[0]: value.product_template_variant_value_ids[0].name
-                                },
-                                "quantity": value.qty_available,
-                                "price": str(value.lst_price),
-                                "package_height": str(self.package_height),
-                                "package_length": str(self.package_length),
-                                "package_width": str(self.package_width),
-                                "package_weight": str(self.package_weight),
-                                "Images": {
-                                    "Image": [
-                                        "https://vn-live-02.slatic.net/p/10e05aa7f00447dcfb3814d439100b08.jpg"
-                                    ]
-                                }
-                            })
-                            if len(self.attribute_line_ids) == 2:
-                                Skus['Sku'][r]["saleProp"].update(
-                                    {variation_name[1]: value.product_template_variant_value_ids[1].name})
+    # Upload image product
+    def upload_image_lazada(self, img):
+        api = "/image/upload"
+        height_resize, with_resize = 0, 0
+        img = Image.open(io.BytesIO(base64.decodebytes(bytes(img.decode('ascii'), "utf-8")))).convert('RGB')
+        if img.height < 330:
+            height_resize = 330 - img.height
+        if img.width < 330:
+            with_resize = 330 - img.width
+        img_resize = img.resize((img.height + height_resize, img.width + with_resize))
+        img_resize.save('customaddons/intergrate_lazada/static/img/lazada.jpeg')
+        file = [('image',
+                 ('lazada.jpeg', open('customaddons/intergrate_lazada/static/img/lazada.jpeg', 'rb'), 'image/jpeg'))]
+        response = self.env['integrate.lazada']._post_request_data(api, files=file)
+        if response.get("code") == "0":
+            return response['data']['image']['url']
 
-        return Skus
+    def parameters_product(self, rec):
+        # Variant custom of product lazada
+        attribute_template = rec.attribute_line_ids
+        product_variant_ids = rec.product_variant_ids
+        variations = {}
+        skus = []
+        if attribute_template:
+            for rec_attribute in range(len(attribute_template)):
+                variations.update({
+                    "variation%s" % (rec_attribute + 1): {
+                        "name": attribute_template[rec_attribute].display_name,
+                        "hasImage": "True",
+                        "customize": "True",
+                        "options": {
+                            "option": attribute_template[rec_attribute].value_ids.mapped("name")
+                        }
+                    }
+                })
+            if "variation2" in variations:
+                variations['variation2'].update({
+                    "hasImage": "False",
+                })
+        for r_variation in product_variant_ids:
+            value_attribute = r_variation.product_template_attribute_value_ids
 
-
-    def btn_create_product_lazada(self):
-        api = "/product/create"
-        parameters= {"payload":{
-                "Request": {
-                    "Product": {
-                    "PrimaryCategory": self.categ_id.category_lazada_id,
-                    "AssociatedSku":"Existing SKU in seller center",
+            saleProp = {}
+            for r_attribute in range(len(attribute_template)):
+                saleProp.update({
+                    attribute_template[r_attribute].display_name: value_attribute[r_attribute].name
+                })
+            sku = {
+                "SellerSku": r_variation.default_code,
+                "quantity": str(rec.product_variant_ids.stock_quant_ids.filtered(
+                    lambda r: r.location_id.warehouse_id.is_warehouse_default == True).quantity),
+                "price": str(r_variation.lst_price),
+                "package_height": str(r_variation.package_height),
+                "package_length": str(r_variation.package_length),
+                "package_width": str(r_variation.package_width),
+                "package_weight": str(r_variation.package_weight),
+            }
+            if saleProp:
+                sku.update({
+                    "saleProp": saleProp
+                })
+            skus.append(sku)
+        parameters = {"payload": {
+            "Request": {
+                "Product": {
+                    "PrimaryCategory": rec.categ_id.category_lazada_id,
                     "Images": {
                         "Image": [
-                        "https://vn-live-02.slatic.net/p/10e05aa7f00447dcfb3814d439100b08.jpg"
+                            self.env['product.template'].upload_image_lazada(rec.image_1920)
                         ]
                     },
                     "Attributes": {
-                        "propCascade": {
-                            "26": "120013644:162,100006867:160387"
-                                },
-                        "name": self.name,
-                        "description": "" ,
-                        "brand_id": self.brand_id.brand_id_lazada,
-                        "warranty_type": self.warranty_type,
-                        "delivery_option_sof": self.is_shipped_by_seller
-                    }
+                        "name": rec.name,
+                        "description": str(rec.description),
+                        "warranty_type": rec.warranty_type,
+                        "delivery_option_sof": rec.is_shipped_by_seller
+                    },
+                    "Skus": {
+                        "Sku": skus
                     }
                 }
-             }}
-        if self.description != False:
-            parameters['payload']['Request']['Product']['Attributes'].update({'description': "Khoong"})
+            }
+        }}
+        if not rec.brand_id:
+            parameters['payload']['Request']['Product']['Attributes'].update({"brand": "No Brand"})
+        else:
+            parameters['payload']['Request']['Product']['Attributes'].update({"brand": rec.brand_id.name})
 
-        variation = self.variation_custions()
-        sku = self.sku_product()
-        parameters['payload']['Request']['Product'].update({"Skus":sku})
-        if variation != False:
-            parameters['payload']['Request']['Product'].update({"variation": variation})
-            response = self.env['integrate.lazada']._post_request_data(api,parameters)
+        if variations:
+            parameters["payload"]['Request']['Product'].update({
+                "variation": variations
+            })
+        return parameters
+
+    def cron_job_sync_product_lazada(self):
+        api = "/product/create"
+        product_push_tiktok = self.env['product.template'].search(
+            [('is_push_lazada', '=', True), ('check_sync_product', '=', False)])
+        for rec in product_push_tiktok:
+            parameters = self.env['product.template'].parameters_product(rec)
+            response = self.env['integrate.lazada']._post_request_data(api, parameters)
             if response['code'] == "0":
-                  self.sudo().create({"check_sync_product": True})
+                rec.check_sync_product = True
+
+    def btn_update_product_lazada(self):
+        api = "/product/update"
+        for rec in self:
+            parameters = self.parameters_product(rec)
+            response = self.env['integrate.lazada']._post_request_data(api, parameters)
+            # if response['code'] == "0":
+            #     self.sudo().write({"check_update": True})
+
+    def cron_job_sync_stock_lazada(self):
+        api = '/product/stock/sellable/update'
+        search_product_id_lazada = self.env['product.template'].search([('check_sync_product', '=', True),])
+        Sku = []
+        for rec in search_product_id_lazada:
+            for r_variant in rec.product_variant_ids:
+                WarehouseInventory = []
+                for r_stock in r_variant.stock_quant_ids.filtered(
+                        lambda r: r.location_id.warehouse_id.warehouse_lazada_code != False):
+                    WarehouseInventory.append({
+                        "WarehouseCode": r_stock.location_id.warehouse_id.warehouse_lazada_code,
+                        "Quantity": r_stock.quantity
+                    })
+                value = {
+                    "SellerSku": r_variant.default_code,
+                    "MultiWarehouseInventories": {
+                        "MultiWarehouseInventory": WarehouseInventory
+                    }}
+                Sku.append(value)
+        parameters = {"payload":
+            {
+                "Request": {
+                    "Product": {
+                        "Skus": {
+                            "Sku": Sku
+                        }
+                    }
+                }
+            }
+        }
+        self.env['integrate.lazada']._post_request_data(api, parameters)

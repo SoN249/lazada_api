@@ -5,7 +5,7 @@ class CategoryLazada(models.Model):
 
     category_lazada_id = fields.Integer(string="Id Category")
     leaf = fields.Boolean(string="Leaf")
-    def category_lazada(self):
+    def get_category_lazada(self):
         api = "/category/tree/get"
         parameters ={"language_code": "vi_VN"}
         response = self.env['integrate.lazada']._get_request_data(api, parameters)
@@ -13,18 +13,19 @@ class CategoryLazada(models.Model):
         list_child2 = []
         list_child3 = []
         list_child4 = []
+        categ_id = self.search([("category_lazada_id","!=", False)]).mapped("category_lazada_id")
         for child in response['data']:
             if 'children' in child:
                 for x in child['children']:
                     list_child.append(x)
-            if child['leaf'] == True:
+            if child['leaf'] == True and child['category_id'] not in categ_id:
                 self.env['product.category'].sudo().create({
                     "name": child['name'],
                     "category_lazada_id": child['category_id'],
                     "leaf": child['leaf']
                 })
         for child2 in list_child:
-            if 'name' in child2 and child2['leaf'] == True:
+            if 'name' in child2 and child2['leaf'] == True and child2['category_id'] not in categ_id:
                 self.env['product.category'].sudo().create({
                         "name": child2['name'],
                         "category_lazada_id": child2['category_id'],
@@ -35,7 +36,7 @@ class CategoryLazada(models.Model):
                     list_child2.append(x)
 
         for child3 in list_child2:
-            if 'name' in child3 and child3['leaf'] == True:
+            if 'name' in child3 and child3['leaf'] == True and child3['category_id'] not in categ_id:
                 self.env['product.category'].sudo().create({
                         "name": child3['name'],
                         "category_lazada_id": child3['category_id'],
@@ -46,7 +47,7 @@ class CategoryLazada(models.Model):
                     list_child3.append(x)
 
         for child4 in list_child3:
-            if 'name' in child4 and child4['leaf'] == True:
+            if 'name' in child4 and child4['leaf'] == True and child4['category_id'] not in categ_id:
                 self.env['product.category'].sudo().create({
                     "name": child4['name'],
                     "category_lazada_id": child4['category_id'],
@@ -57,7 +58,7 @@ class CategoryLazada(models.Model):
                     list_child4.append(x)
 
         for lstchild in list_child4:
-            if 'name' in lstchild and lstchild['leaf'] == True:
+            if 'name' in lstchild and lstchild['leaf'] == True and lstchild['category_id'] not in categ_id:
                 self.env['product.category'].sudo().create({
                     "name": lstchild['name'],
                     "category_lazada_id": lstchild['category_id'],
@@ -65,9 +66,10 @@ class CategoryLazada(models.Model):
                 })
             elif 'children' in lstchild:
                 for value in lstchild['children']:
-                    self.env['product.category'].sudo().create({
-                        "name": value['name'],
-                        "category_lazada_id": value['category_id'],
-                        "leaf": value['leaf']
-                    })
+                    if value['category_id'] not in categ_id:
+                        self.env['product.category'].sudo().create({
+                            "name": value['name'],
+                            "category_lazada_id": value['category_id'],
+                            "leaf": value['leaf']
+                        })
 
