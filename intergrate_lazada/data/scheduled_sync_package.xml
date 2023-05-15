@@ -12,8 +12,22 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="numbercall">-1</field>
             <field name='interval_type'>hours</field>
+              <field name="doall">1</field>
             <field name="nextcall" eval="datetime.now()+timedelta(hours=1)"/>
             <field name="priority" eval="6" />
+        </record>
+
+          <record id="ir_cron_data_return" model="ir.cron">
+            <field name="name">Tạo DO return</field>
+            <field name="model_id" ref="model_stock_picking"/>
+            <field name="type">ir.actions.server</field>
+            <field name="state">code</field>
+            <field name="code">model.cronjob_create_return()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="numbercall">-1</field>
+              <field name="doall">1</field>
         </record>
     </data>
 </odoo>

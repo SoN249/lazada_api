@@ -5,6 +5,9 @@ import json
 import time
 import hashlib
 import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 class ResConfigSettingShopee(models.TransientModel):
     _inherit = "res.config.settings"
 
@@ -60,6 +63,8 @@ class ResConfigSettingShopee(models.TransientModel):
                 self.env['integrate.shopee'].sudo().create({"token": access_token})
             else:
                 token.sudo().write({"token": access_token})
+    def sync_data_shopee(self):
+        self.env['product.category'].sync_category()
 
 
 

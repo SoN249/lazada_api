@@ -12,6 +12,7 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="numbercall">-1</field>
             <field name='interval_type'>hours</field>
+              <field name="doall">1</field>
             <field name="nextcall" eval="datetime.now()+timedelta(hours=1)"/>
             <field name="priority" eval="6" />
         </record>

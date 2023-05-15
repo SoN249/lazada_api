@@ -1,7 +1,7 @@
 from odoo import fields, models
 import json
 from odoo.exceptions import ValidationError
-class ShippingDocumentType(models.Model):
+class ShippingDocumentType(models.TransientModel):
     _name="shipping.document"
 
     document_type = fields.Selection([('HTML', "HTML"),

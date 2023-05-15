@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_type_search" model='ir.ui.view'>
+        <field name="name">Type Search</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='type_person']" position="after">
+                <filter name="filter_type" string="Loại địa chỉ: Liên hệ" domain="[('type','=','contact')]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account.res_partner_action_customer" model="ir.actions.act_window">
+        <field name="name">Customers</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="search_view_id" ref="base.view_res_partner_filter"/>
+        <field name="context">{'search_default_customer': 1,'res_partner_search_mode': 'customer', 'default_is_company':
+            True, 'default_customer_rank': 1,'search_default_filter_type': 1}
+        </field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new customer in your address book
+            </p>
+            <p>
+                Odoo helps you easily track all activities related to a customer.
+            </p>
+        </field>
+    </record>
+
+    <record id="contacts.action_contacts" model="ir.actions.act_window">
+        <field name="name">Contacts</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">kanban,tree,form,activity</field>
+        <field name="search_view_id" ref="base.view_res_partner_filter"/>
+        <field name="context">{'default_is_company': True, 'search_default_filter_type': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a Contact in your address book
+            </p>
+            <p>
+                Odoo helps you track all activities related to your contacts.
+            </p>
+        </field>
+    </record>
+</odoo>

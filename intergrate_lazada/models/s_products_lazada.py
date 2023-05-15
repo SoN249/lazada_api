@@ -3,6 +3,7 @@ from odoo.exceptions import ValidationError
 from PIL import Image
 import io, base64
 
+
 class SProductLazada(models.Model):
     _inherit = ['product.template']
 
@@ -10,7 +11,7 @@ class SProductLazada(models.Model):
     package_height = fields.Float('Chiều cao (cm)', required=True)
     package_length = fields.Float('Chiều dai (cm)', required=True)
     package_width = fields.Float('Chiều rộng (cm)', required=True)
-    package_weight = fields.Float('Trọng lượng', required = True)
+    package_weight = fields.Float('Trọng lượng', required=True)
     check_sync_product = fields.Boolean('Check sync', default=False, readonly=True)
     is_push_lazada = fields.Boolean('Push lazada', default=False, )
     warranty_type = fields.Selection([('No Warranty', "Không có bảo hành")], default='No Warranty')
@@ -36,14 +37,6 @@ class SProductLazada(models.Model):
                     'warning': {
                         'title': 'Cảnh báo',
                         'message': 'Chưa có ảnh'
-                    }
-                }
-            if not self.categ_id.category_lazada_id:
-                self.is_push_lazada = False
-                return {
-                    'warning': {
-                        'title': 'Cảnh báo',
-                        'message': 'Danh mục này không phải của lazada'
                     }
                 }
 
@@ -156,37 +149,50 @@ class SProductLazada(models.Model):
         for rec in self:
             parameters = self.parameters_product(rec)
             response = self.env['integrate.lazada']._post_request_data(api, parameters)
-            # if response['code'] == "0":
-            #     self.sudo().write({"check_update": True})
+            if response['code'] == '0':
+                notification = {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': ('Cập nhật sản phẩm'),
+                        'message': 'Đã cập nhật sản phẩm Lazada',
+                        'type': 'success',  # types: success,warning,danger,info
+                        'sticky': True,  # True/False will display for few seconds if false
+                    },
+                }
+                return notification
 
     def cron_job_sync_stock_lazada(self):
         api = '/product/stock/sellable/update'
-        search_product_id_lazada = self.env['product.template'].search([('check_sync_product', '=', True),])
-        Sku = []
-        for rec in search_product_id_lazada:
-            for r_variant in rec.product_variant_ids:
-                WarehouseInventory = []
-                for r_stock in r_variant.stock_quant_ids.filtered(
-                        lambda r: r.location_id.warehouse_id.warehouse_lazada_code != False):
-                    WarehouseInventory.append({
-                        "WarehouseCode": r_stock.location_id.warehouse_id.warehouse_lazada_code,
-                        "Quantity": r_stock.quantity
-                    })
+        search_product_id_lazada = self.env['product.template'].search([('is_push_lazada', '=', True)])
+        sku = []
+        for product_template_id in search_product_id_lazada:
+            for product_variant_id in product_template_id.product_variant_ids:
+                stock_quant_ids = product_variant_id.stock_quant_ids.filtered(
+                    lambda r: r.location_id.warehouse_id.is_push_lazada == True)
                 value = {
-                    "SellerSku": r_variant.default_code,
-                    "MultiWarehouseInventories": {
-                        "MultiWarehouseInventory": WarehouseInventory
-                    }}
-                Sku.append(value)
+                    "SellerSku": product_variant_id.default_code,
+                    "Quantity": stock_quant_ids.quantity
+                }
+                if product_variant_id.is_merge_product == True:
+                    product_ids = product_variant_id.search([('marketplace_sku', '=like', product_variant_id.marketplace_sku)])
+                    quantity = product_ids.stock_quant_ids.filtered(
+                        lambda r: r.location_id.warehouse_id.is_push_lazada == True).mapped("quantity")
+                    value.update({"Quantity": sum(quantity)})
+                    value.update({"SellerSku": product_variant_id.marketplace_sku})
+
+                sku.append(value)
         parameters = {"payload":
-            {
-                "Request": {
-                    "Product": {
-                        "Skus": {
-                            "Sku": Sku
+                    {
+                        "Request": {
+                            "Product": {
+                                "Skus": {
+                                    "Sku": sku
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
         self.env['integrate.lazada']._post_request_data(api, parameters)
+
+

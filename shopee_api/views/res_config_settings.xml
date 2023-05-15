@@ -38,7 +38,7 @@
                                         string="Authorization"/>
                                 <button class="btn btn-primary mx-2" name="get_token_account_level" type="object"
                                         string="Connect Shopee"/>
-<!--                                <button class="btn btn-primary mx-2" name="sync_data" type="object" string="Sync Data"/>-->
+                                <button class="btn btn-primary mx-2" name="sync_data_shopee" type="object" string="Sync Data"/>
 
                             </div>
                         </div>

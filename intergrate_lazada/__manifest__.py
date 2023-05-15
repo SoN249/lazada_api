@@ -20,7 +20,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','sale',"product",'stock','sale_stock'],
+    'depends': ['base','sale',"product",'stock','sale_stock','contacts','account'],
 
     # always loaded
     'data': [
@@ -30,11 +30,17 @@
         "views/s_order_lazada.xml",
         "views/s_stock_picking.xml",
         "views/s_warehouse.xml",
+        "views/s_res_partner.xml",
+        "views/s_product_product.xml",
         "wizard/type_shipping_document.xml",
+        "wizard/infor_customer.xml",
         "data/scheduled_sync_order.xml",
         "data/scheduled_sync_product.xml",
         "data/scheduled_sync_stock.xml",
         "data/scheduled_sync_package.xml",
-        "data/scheduled_update_order.xml"
+        "data/scheduled_update_order.xml",
+        "data/scheduled_refresh_token.xml",
+        "data/customer_lazada_data.xml"
+
     ],
 }

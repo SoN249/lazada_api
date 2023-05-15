@@ -3,22 +3,13 @@ import requests
 import time
 import hmac
 import hashlib
-import json
-import urllib.parse
 
 
 class IntegrateLazada(models.Model):
     _name = 'integrate.lazada'
 
-    access_token = fields.Char(string='Access token')
-    parameters = fields.Text("Parameters")
-
-    def create_signature(self, api,params, timestamp):
+    def create_signature(self, api,parameters):
         ir_config = self.env['ir.config_parameter'].sudo()
-        parameters = {"app_key": ir_config.get_param('intergrate_lazada.app_key', ''), "sign_method": "sha256",
-                  "access_token": self.sudo().search([]).access_token, "timestamp": timestamp}
-        if params is not None:
-            parameters.update(params)
         sort_dict = sorted(parameters)
         secret = ir_config.get_param('intergrate_lazada.app_secret','')
         parameters_str = "%s%s" % (api,str().join('%s%s' % (key, parameters[key]) for key in sort_dict))
@@ -33,16 +24,16 @@ class IntegrateLazada(models.Model):
         ir_config = self.env['ir.config_parameter'].sudo()
         data = payload or dict()
         timestamp = int(round(time.time() * 1000))
-
-        sign = self.create_signature(api,parameters, timestamp)
         params = {"app_key": ir_config.get_param('intergrate_lazada.app_key', ''), "sign_method": "sha256",
-                  "access_token": self.sudo().search([]).access_token, "timestamp": timestamp, "sign":sign}
+                  "access_token": ir_config.get_param('intergrate_lazada.access_token', ''), "timestamp": timestamp}
         if parameters is not None:
             if len(parameters) == 1:
                 key = list(parameters.keys())[0]
                 params.update({key: str(parameters[key])})
             else:
                 params.update(parameters)
+        sign = self.create_signature(api, parameters=params)
+        params.update({'sign': sign})
 
         url = ir_config.get_param('intergrate_lazada.url','') + api
         res = requests.post(
@@ -56,7 +47,7 @@ class IntegrateLazada(models.Model):
         if res.status_code == 200:
             return res.json()
 
-    def _get_request_data(self, api, parameters=None, payload=None, files=None, headers=None):
+    def _get_request_data(self, api, parameters=None, files=None, headers=None):
         if headers is None:
             headers = {
                 'Content-Type': 'application/json',
@@ -65,19 +56,18 @@ class IntegrateLazada(models.Model):
         if parameters is None:
             parameters = {}
         ir_config = self.env['ir.config_parameter'].sudo()
-        data = payload or dict()
+
         timestamp = int(round(time.time() * 1000))
-
-        sign = self.create_signature(api, parameters, timestamp)
         params = {"app_key": ir_config.get_param('intergrate_lazada.app_key', ''), "sign_method": "sha256",
-                  "access_token": self.sudo().search([]).access_token, "timestamp": timestamp, "sign": sign}
-
+                      "access_token": ir_config.get_param('intergrate_lazada.access_token', ''), "timestamp": timestamp}
         params.update(parameters)
+        sign = self.create_signature(api, parameters=params)
+        params.update({"sign": sign})
 
         url = ir_config.get_param('intergrate_lazada.url', '') + api
         res = requests.get(
             url,
-            data=data,
+            data={},
             params=params,
             files=files,
             headers=headers,

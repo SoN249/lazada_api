@@ -6,19 +6,19 @@
         <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@id='connectors_setting_container']" position="after">
-                <h2>Lazada Connect </h2>
+                <h2>Lazada Connect</h2>
                 <div class="col-xs-12 row o_settings_container" id="website_info_settings">
                     <div class="col-xs-12 col-md-6 o_setting_box">
                         <div class="o_setting_right_pane border-start-0">
                             <div class="content-group">
                                 <div class="row mt8">
                                     <label class="col-lg-3" string="Client ID" for="app_key"/>
-                                    <field name="app_key" title="Provide the Client ID here"/>
+                                    <field name="app_key" title="Provide the Client ID here " password="True"/>
 
                                 </div>
                                 <div class="row mt8">
                                     <label class="col-lg-3" string="Client Secret" for="app_secret"/>
-                                    <field name="app_secret" title="Provide the Client Secret here"/>
+                                    <field name="app_secret" title="Provide the Client Secret here" password="True"/>
                                 </div>
 
                                 <div class="row mt8">
@@ -30,12 +30,20 @@
                                     <label class="col-lg-3" string="Auth Code" for="auth_code"/>
                                     <field name="auth_code"/>
                                 </div>
-                                <button class="btn btn-primary" name="btn_get_auth" type="object"
-                                        string="Authorization"/>
-                                <button class="btn btn-primary mx-2" name="btn_access_token" type="object"
-                                        string="Connect to Lazada"/>
-                                <button class="btn btn-primary mx-2" name="sync_data" type="object" string="Sync Data"/>
+                                <field name="is_connected_lazada" invisible="1"/>
+                                <div class="row mt8">
+                                <button class="btn btn-primary mx-2" name="btn_get_auth" type="object"
+                                        string="Authorization"
+                                        attrs="{'invisible': [('is_connected_lazada', '=', True)]}"/>
 
+                                <button class="btn btn-primary mx-2" name="btn_connect_lazada" type="object"
+                                        string="Kết nối Lazada"
+                                        attrs="{'invisible': [('is_connected_lazada', '=', True)]}"/>
+
+                                <button class="btn btn-primary mx-4" name="btn_disconnect_lazada" type="object"
+                                        string="Ngắt kết nối Lazada"
+                                        attrs="{'invisible': [('is_connected_lazada', '=', False)]}"/>
+                                </div>
                             </div>
                         </div>
                     </div>

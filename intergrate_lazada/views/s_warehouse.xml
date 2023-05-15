@@ -6,8 +6,8 @@
         <field name="inherit_id" ref="stock.view_warehouse"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='code']" position="after">
-                <field name="warehouse_lazada_code" string="Mã Kho Lazada" readonly="1" />
-                <field name="is_warehouse_default" string="Là kho Lazada mặc định ?" readonly="1"/>
+                <field name="ecommerce_platform"/>
+                <field name="is_push_lazada" widget="boolean_toggle" />
             </xpath>
         </field>
     </record>

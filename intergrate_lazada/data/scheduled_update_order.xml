@@ -12,6 +12,7 @@
             <field name="user_id" ref="base.user_root"/>
             <field name="numbercall">-1</field>
              <field name='interval_type'>minutes</field>
+           <field name="doall">1</field>
             <field name="nextcall" eval="datetime.now() + timedelta(minutes=30)"/>
         </record>
       </data>

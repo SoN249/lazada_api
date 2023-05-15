@@ -16,8 +16,9 @@ class IntergrateShopee(models.Model):
         app_secret = ir_config.get_param('shopee_api.app_secret','')
         shop_id = ir_config.get_param('shopee_api.shop_id','')
         path = api
-        tmp_base_string = "%s%s%s%s%s" % (app_key, path, timest, self.token, shop_id)
+        tmp_base_string = "%s%s%s%s%s" % (app_key, path, timest, self.search([]).token, shop_id)
         base_string = tmp_base_string.encode()
+
         partner_key = app_secret.encode()
         sign = hmac.new(partner_key, base_string, hashlib.sha256).hexdigest()
         return sign
@@ -33,12 +34,12 @@ class IntergrateShopee(models.Model):
         timest = int(time.time())
         sign = self._create_signature(api, timest)
         data = payload or dict()
-        data = data or dict()
         ir_config = self.env['ir.config_parameter'].sudo()
-        params = {"app_key": ir_config.get_param('shopee_api.app_key',''),
-                  "access_token": self.token,
+        params = {"partner_id": ir_config.get_param('shopee_api.app_key',''),
+                  "access_token": self.search([]).token,
                   "sign": sign,
                   "timestamp": timest,
+                  "shop_id": ir_config.get_param('shopee_api.shop_id','')
                   }
         params.update(param)
         url = ir_config.get_param('shopee_api.url','') + api
@@ -51,7 +52,7 @@ class IntergrateShopee(models.Model):
             verify=False
         )
         if res.status_code == 200:
-            return res.text
+            return res.json()
 
 
     def _post_data_shopee(self, api, payload=None, files=None, params={}, headers=None):
@@ -61,8 +62,6 @@ class IntergrateShopee(models.Model):
                 'User-Agent': 'Odoo'
             }
         data = payload or dict()
-
-        params = {}
         url = "https://open-api-sandbox.tiktokglobalshop.com" + api
         res = requests.post(
             url,
@@ -72,6 +71,7 @@ class IntergrateShopee(models.Model):
             headers=headers,
             verify=False
         )
+        print(res)
         if res.status_code == 200:
-            return res.text
+            return res.json()
 

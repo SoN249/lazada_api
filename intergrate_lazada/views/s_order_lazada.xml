@@ -5,6 +5,10 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_quotation_send']" position="before">
+                <button name="btn_update_customer" string="Cập nhật khách hàng" type="object"
+                        attrs="{'invisible': [('state', '=', 'draft')]}"/>
+            </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="lazada_order_id"/>
                 <field name="is_lazada_order" readonly="1"/>
