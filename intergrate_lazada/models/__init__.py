@@ -10,4 +10,4 @@ from . import get_orders_lazada
 from . import s_stock_picking
 from . import s_order_line
 from . import s_product_product
-from . import list_ecommerce_platform
+from . import ecommerce_platform

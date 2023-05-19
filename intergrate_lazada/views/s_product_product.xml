@@ -7,7 +7,26 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='default_code']" position="after">
                 <field name="is_merge_product" string="Gộp sản phẩm trên Marketplace"/>
-                <field name="marketplace_sku" string="Marketplace SKU" attrs="{'invisible': [('is_merge_product', '=', False)]}"/>
+                <field name="marketplace_sku" string="Marketplace SKU"
+                       attrs="{'invisible': [('is_merge_product', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_product_normal_form_view_inherit" model="ir.ui.view">
+        <field name="name">produc.product.normal.form.view.inherit</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//label[@for='purchase_ok']" position="after">
+                <span class="d-inline-block">
+                    <field name="is_merge_product"/>
+                    <label for="is_merge_product" string="Gộp sản phẩm trên Marketplace"/>
+                </span>
+            </xpath>
+            <xpath expr="//field[@name='default_code']" position="after">
+                <field name="marketplace_sku" string="Marketplace SKU"
+                       attrs="{'invisible': [('is_merge_product', '=', False)]}"/>
             </xpath>
         </field>
     </record>

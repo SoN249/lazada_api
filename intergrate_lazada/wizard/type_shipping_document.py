@@ -19,7 +19,7 @@ class ShippingDocumentType(models.TransientModel):
                  ]}}
         response = self.env['integrate.lazada']._post_request_data(api, parameters)
 
-        if response['code'] == '0':
+        if response['code'] == '0' and response['result']['success'] == True:
             url = response['result']['data']['pdf_url']
             return {
                 'name': 'Shipping Document',

@@ -17,4 +17,8 @@ class InforCusomer(models.TransientModel):
             self.order_id.write({
                 "partner_id": self.partner_id
             })
+            if self.order_id.picking_ids:
+                self.order_id.picking_ids[0].write({
+                    "partner_id": self.partner_id.id
+                })
 

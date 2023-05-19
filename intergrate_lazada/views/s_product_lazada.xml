@@ -20,7 +20,6 @@
             <xpath expr="//field[@name='currency_id']" position="before">
                  <field name="is_shipped_by_seller" string="Vận chuyển bởi người bán không?"/>
                 <field name = "warranty_type" string="Loại bảo hành" />
-                <field name = "check_update" string="Đã cập nhật sản phẩm" />
                 <field name="check_sync_product" string="Đồng bộ sản phẩm"/>
             </xpath>
             <xpath expr="//field[@name='detailed_type']" position="before">

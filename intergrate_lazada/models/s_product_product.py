@@ -1,6 +1,5 @@
 from odoo import fields, models
 
-
 class SProductProduct(models.Model):
     _inherit = 'product.product'
     marketplace_sku = fields.Text("Marketplace SKU")

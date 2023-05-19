@@ -18,8 +18,6 @@ class SProductLazada(models.Model):
     is_shipped_by_seller = fields.Selection([('No', 'Không'),
                                              ('Yes', 'Có')
                                              ], default='No')
-    check_update = fields.Boolean('Check update', default=False, readonly=True)
-
     @api.onchange('is_push_lazada')
     def _check_is_push_lazada(self):
         if self.is_push_lazada:
@@ -29,14 +27,6 @@ class SProductLazada(models.Model):
                     'warning': {
                         'title': 'Cảnh báo',
                         'message': 'Chỉ có 2 biến thể mới có thể được đẩy lên lazada'
-                    }
-                }
-            if not self.image_1920:
-                self.is_push_lazada = False
-                return {
-                    'warning': {
-                        'title': 'Cảnh báo',
-                        'message': 'Chưa có ảnh'
                     }
                 }
 

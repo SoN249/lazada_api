@@ -7,13 +7,10 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='origin']" position="after">
                 <field name="status" readonly="1"/>
-                <field name="package_lazada_id" invisible="1"/>
+                <field name="package_id" invisible="1"/>
             </xpath>
             <xpath expr="//button[@name='action_open_label_layout']" position="after">
-                <button type="object" name="btn_shipping_document" string="In nhãn Lazada" attrs="{'invisible': [('package_lazada_id', '=', 'null')]}"/>
-            </xpath>
-             <xpath expr="//button[@name='action_open_label_layout']" position="after">
-                <button type="object" name="test" string="Test"/>
+                <button type="object" name="btn_shipping_document" string="In nhãn Lazada" attrs="{'invisible': [('package_id', '=', False)]}"/>
             </xpath>
         </field>
     </record>
