@@ -2,7 +2,7 @@
 <odoo>
     <data>
      <record id="ir_cron_refresh_access" model="ir.cron">
-            <field name="name">Refresh access token Lazada </field>
+            <field name="name">### Lazada: Refresh access token Lazada </field>
             <field name="model_id" ref="base.model_res_config_settings"/>
             <field name="type">ir.actions.server</field>
             <field name="state">code</field>
@@ -11,7 +11,6 @@
             <field name="interval_type">days</field>
             <field name="user_id" ref="base.user_root"/>
             <field name="numbercall">-1</field>
-             <field name='interval_type'>days</field>
             <field name="doall">1</field>
             <field name="nextcall" eval="datetime.now() + timedelta(days=30)"/>
         </record>

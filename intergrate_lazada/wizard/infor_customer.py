@@ -4,7 +4,9 @@ class InforCusomer(models.TransientModel):
     _name="infor.customer"
 
     order_id = fields.Many2one('sale.order', readonly=True)
-    partner_id = fields.Many2one('res.partner')
+    name = fields.Char("Tên khách hàng")
+    phone = fields.Char("Điện thoại")
+    street = fields.Char("Địa chỉ")
 
     @api.model
     def default_get(self, fields):
@@ -13,12 +15,15 @@ class InforCusomer(models.TransientModel):
         return res
 
     def btn_confirm(self):
-        if self.partner_id:
-            self.order_id.write({
-                "partner_id": self.partner_id
-            })
-            if self.order_id.picking_ids:
-                self.order_id.picking_ids[0].write({
-                    "partner_id": self.partner_id.id
+        value = {
+            "sale_order_ids": self.order_id,
+            "name": self.name,
+            "phone": self.phone,
+            "street": self.street,
+        }
+        partner_id = self.order_id.partner_id.create(value)
+        if self.order_id.picking_ids:
+            for picking_id in self.order_id.picking_ids:
+                picking_id.write({
+                    "partner_id": partner_id.id
                 })
-

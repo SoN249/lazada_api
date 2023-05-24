@@ -32,7 +32,6 @@
         "views/s_warehouse.xml",
         "views/s_res_partner.xml",
         "views/s_product_product.xml",
-        "views/ecommerce_platform.xml",
         "wizard/type_shipping_document.xml",
         "wizard/infor_customer.xml",
         "data/scheduled_sync_order.xml",
@@ -40,6 +39,6 @@
         "data/scheduled_sync_package.xml",
         "data/scheduled_order_status.xml",
         "data/scheduled_refresh_token.xml",
-        "data/customer_lazada_data.xml"
+        "data/lazada_data.xml"
     ],
 }

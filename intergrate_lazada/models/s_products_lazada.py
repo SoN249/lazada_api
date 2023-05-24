@@ -170,7 +170,6 @@ class SProductLazada(models.Model):
                         lambda r: r.location_id.warehouse_id.is_push_lazada == True).mapped("quantity")
                     value.update({"Quantity": sum(quantity)})
                     value.update({"SellerSku": product_variant_id.marketplace_sku})
-
                 sku.append(value)
         parameters = {"payload":
                     {
@@ -183,6 +182,15 @@ class SProductLazada(models.Model):
                         }
                     }
                 }
-        self.env['integrate.lazada']._post_request_data(api, parameters)
+        response = self.env['integrate.lazada']._post_request_data(api, parameters)
+        if response['code'] == '0':
+            if response.get('detail'):
+                for r in response.get('detail'):
+                    if r.get('seller_sku'):
+                        seller_sku = r.get('seller_sku').strip('SellerSku_')
+                        product_id = self.env['product.product'].search([('default_code', '=', seller_sku)], limit=1)
+
+
+
 
 

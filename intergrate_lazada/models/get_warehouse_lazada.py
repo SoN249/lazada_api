@@ -1,16 +1,19 @@
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
-
-class WarehouseLazada(models.Model):
+class SStockWarehouse(models.Model):
     _inherit = "stock.warehouse"
 
-    ecom_id = fields.Many2one('list.ecommerce',string="Đồng bộ lên sàn TMĐT")
     is_push_lazada = fields.Boolean('Đồng bộ Lazada')
-    @api.onchange('ecom_id')
-    def check_platform(self):
-        warehouse_id = self.search([]).mapped('ecom_id')
-        if self.ecom_id.id in warehouse_id.ids:
-            raise ValidationError("Sàn thương mại điện tử đã có kho hàng")
+    e_commerce = fields.Selection([('lazada', 'Lazada'),
+                                   ('tiktok', 'Tiktok')],
+                                  string="Đồng bộ lên sàn TMĐT")
+
+    @api.constrains("e_commerce","is_push_lazada")
+    def _check_e_commerce(self):
+        search_count = self.env['stock.warehouse'].search_count(['|',('e_commerce', '=', 'lazada'),('is_push_lazada', '=', True)])
+        if search_count > 1:
+            raise ValidationError('Kho của sàn TMĐT Lazada đã tồn tại.')
+
 
 
 

@@ -4,7 +4,6 @@ import time
 import hmac
 import hashlib
 
-
 class IntegrateLazada(models.Model):
     _name = 'integrate.lazada'
 
@@ -34,18 +33,19 @@ class IntegrateLazada(models.Model):
                 params.update(parameters)
         sign = self.create_signature(api, parameters=params)
         params.update({'sign': sign})
-
         url = ir_config.get_param('intergrate_lazada.url','') + api
-        res = requests.post(
-            url,
-            data=data,
-            params=params,
-            files=files,
-            headers=headers,
-            verify=False
-        )
-        if res.status_code == 200:
-            return res.json()
+        if ir_config.get_param('intergrate_lazada.access_token', ''):
+            res = requests.post(
+                url,
+                data=data,
+                params=params,
+                files=files,
+                headers=headers,
+                verify=False
+            )
+            if res:
+                if res.status_code == 200:
+                    return res.json()
 
     def _get_request_data(self, api, parameters=None, files=None, headers=None):
         if headers is None:
@@ -56,22 +56,22 @@ class IntegrateLazada(models.Model):
         if parameters is None:
             parameters = {}
         ir_config = self.env['ir.config_parameter'].sudo()
-
         timestamp = int(round(time.time() * 1000))
         params = {"app_key": ir_config.get_param('intergrate_lazada.app_key', ''), "sign_method": "sha256",
                       "access_token": ir_config.get_param('intergrate_lazada.access_token', ''), "timestamp": timestamp}
         params.update(parameters)
         sign = self.create_signature(api, parameters=params)
         params.update({"sign": sign})
-
         url = ir_config.get_param('intergrate_lazada.url', '') + api
-        res = requests.get(
-            url,
-            data={},
-            params=params,
-            files=files,
-            headers=headers,
-            verify=False
-        )
-        if res.status_code == 200:
-            return res.json()
+        if ir_config.get_param('intergrate_lazada.access_token', ''):
+            res = requests.get(
+                url,
+                data={},
+                params=params,
+                files=files,
+                headers=headers,
+                verify=False
+            )
+            if res:
+                if res.status_code == 200:
+                    return res.json()

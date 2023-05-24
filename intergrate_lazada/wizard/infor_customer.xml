@@ -9,7 +9,9 @@
             <form>
                 <group>
                     <field name="order_id" string="Đơn hàng"/>
-                    <field name="partner_id" string="Khách hàng"/>
+                    <field name="name"/>
+                    <field name="street"/>
+                    <field name="phone"/>
                 </group>
                 <footer>
                     <button name="btn_confirm" string="Cập nhật" type="object" class="btn-primary" data-hotkey="q"/>

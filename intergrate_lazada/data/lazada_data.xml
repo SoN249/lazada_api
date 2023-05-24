@@ -4,5 +4,9 @@
         <record id="customer_lazada" model="res.partner">
             <field name="name">TMĐT-customer-lazada</field>
         </record>
+
+        <record id="utm_source" model="utm.source">
+            <field name="name">Lazada</field>
+        </record>
     </data>
 </odoo>

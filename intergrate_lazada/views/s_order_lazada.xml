@@ -10,12 +10,11 @@
                         attrs="{'invisible': [('state', '=', 'draft')]}"/>
             </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="lazada_order_id"  attrs="{'invisible': [('is_lazada_order', '=', False)]}" />
+                <field name="lazada_order_id" readonly="1"  attrs="{'invisible': [('is_lazada_order', '=', False)]}" />
                 <field name="is_lazada_order" readonly="1"/>
             </xpath>
             <xpath expr="//field[@name='payment_term_id']" position="after">
                 <field name="marketplace_order_status" string="Trạng thái đơn hàng" readonly="1"/>
-                <field name="source_ecom" readonly="1"/>
             </xpath>
             <xpath expr="//label[@for='commitment_date']" position="before">
                 <field name="shipping_provider_type" string="Phương thức vận chuyển" readonly="1"/>
@@ -29,7 +28,7 @@
         <field name="inherit_id" ref="sale.view_sales_order_filter"/>
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='customer']" position="after">
-                <filter name="source" string="Nguồn" context="{'group_by': 'source_ecom'}"/>
+                <filter name="source" string="Nguồn" context="{'group_by': 'source_id'}"/>
             </xpath>
         </field>
     </record>

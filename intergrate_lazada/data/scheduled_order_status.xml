@@ -2,16 +2,15 @@
 <odoo>
     <data>
      <record id="ir_cron_update_data_order" model="ir.cron">
-            <field name="name">Cập nhật đơn hàng Lazada: Đồng bộ đơn hàng</field>
+            <field name="name">### Lazada: Sync Order Status Lazada</field>
             <field name="model_id" ref="model_sale_order"/>
             <field name="type">ir.actions.server</field>
             <field name="state">code</field>
             <field name="code">model.sync_order_status()</field>
-            <field name="interval_number">30</field>
+            <field name="interval_number">1</field>
             <field name="interval_type">minutes</field>
             <field name="user_id" ref="base.user_root"/>
             <field name="numbercall">-1</field>
-             <field name='interval_type'>minutes</field>
            <field name="doall">1</field>
             <field name="nextcall" eval="datetime.now() + timedelta(minutes=30)"/>
         </record>
