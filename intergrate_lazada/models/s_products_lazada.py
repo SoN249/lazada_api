@@ -165,7 +165,7 @@ class SProductLazada(models.Model):
                     "Quantity": stock_quant_ids.quantity
                 }
                 if product_variant_id.is_merge_product == True:
-                    product_ids = product_variant_id.search([('marketplace_sku', '=like', product_variant_id.marketplace_sku)])
+                    product_ids = product_variant_id.search([('marketplace_sku', '=like', product_variant_id.marketplace_sku),("is_merge_product",'=', True)])
                     quantity = product_ids.stock_quant_ids.filtered(
                         lambda r: r.location_id.warehouse_id.is_push_lazada == True).mapped("quantity")
                     value.update({"Quantity": sum(quantity)})

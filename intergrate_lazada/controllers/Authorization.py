@@ -6,7 +6,7 @@ import hashlib
 import requests
 import json
 class Authorization(http.Controller):
-    @http.route('/callback_url', type='http', auth='public', methods=["GET"], csrf=False)
+    @http.route('/authorization', type='http', auth='public', methods=["GET"], csrf=False)
     def integrating_lazada(self, **kw):
         ir_config_param_obj = request.env['ir.config_parameter'].sudo()
         timestamp = int(round(time.time() * 1000))

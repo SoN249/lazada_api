@@ -16,7 +16,7 @@ class ResConfigSettingLazada(models.TransientModel):
     is_connected_lazada = fields.Boolean("Is connected  Lazada",
                                          config_parameter="intergrate_lazada.is_connected_lazada")
     def btn_connect_lazada(self):
-        if self.app_key:
+        if self.app_key and self.callback_url:
             url = "https://auth.lazada.com/oauth/authorize?response_type=code&force_auth=true&redirect_uri=" + self.callback_url + "&client_id=" + self.app_key
             return {
                 'name': 'Authorization',

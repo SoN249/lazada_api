@@ -9,7 +9,7 @@ class SStockPickings(models.Model):
                                ("READY_TO_SHIP_PENDING", "Chờ giao hàng"),
                                ("DELIVERED", "Giao hàng thành công"),
                                ("INFO_ST_DRIVER_ASSIGNED","Người vận chuyển"),
-                               ("CANCELLED",'Giao hàng thất bại')
+                               ("CANCELED",'Giao hàng thất bại')
                                ], string="Trạng thái giao hàng")
     package_id = fields.Char("Package Id Lazada")
     is_do_return = fields.Boolean("Is DO return")
